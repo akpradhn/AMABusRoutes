@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Plan Ama Bus journeys across Bhubaneswar, Cuttack, Puri and the Odisha capital region using an interactive OpenStreetMap route explorer.">
+  <title>Ama Bus Route Planner | Bhubaneswar, Cuttack and Puri</title>
+  <script src="adsense-config.js"></script>
+  <script defer src="adsense-loader.js"></script>
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="masthead">
+      <div class="brand-block">
+        <p class="eyebrow">CRUT CAPITAL REGION · 2024 NETWORK</p>
+        <h1>Ama Bus on OpenStreetMap</h1>
+        <p class="subtitle">Choose two points to find direct or one-transfer Ama Bus options across the capital region.</p>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="index.html" aria-current="page">Route planner</a>
+          <a href="about.html">About</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </nav>
+      </div>
+      <div class="coverage" aria-label="Map coverage">
+        <strong>43</strong><span>mapped routes</span>
+      </div>
+    </header>
+
+    <section class="map-stage" aria-label="Interactive Ama Bus route map">
+      <div id="map"></div>
+      <aside class="route-panel" aria-label="Route controls">
+        <div class="mode-tabs" aria-label="Map mode">
+          <button type="button" id="mode-plan" aria-pressed="true">Plan a trip</button>
+          <button type="button" id="mode-explore" aria-pressed="false">Explore routes</button>
+        </div>
+
+        <section id="planner-view" aria-label="Trip planner">
+          <p class="panel-prompt">Search stations; suggestions auto-match as you type.</p>
+          <div class="station-fields">
+            <label for="start-station">From station
+              <input id="start-station" type="search" list="station-list" autocomplete="off" placeholder="Type a station name">
+            </label>
+            <label for="end-station">To station
+              <input id="end-station" type="search" list="station-list" autocomplete="off" placeholder="Type a station name">
+            </label>
+            <datalist id="station-list"></datalist>
+          </div>
+          <div class="point-actions">
+            <button type="button" id="set-start" aria-pressed="false">Pick start on map</button>
+            <button type="button" id="set-end" aria-pressed="false">Pick destination on map</button>
+          </div>
+          <div id="trip-summary" class="trip-summary" aria-live="polite">Choose your starting station.</div>
+          <div id="planner-results" class="planner-results" aria-live="polite"></div>
+          <button type="button" id="clear-trip" class="secondary-button">Clear trip</button>
+        </section>
+
+        <section id="explore-view" hidden aria-label="Route explorer">
+          <label for="route-select">Route</label>
+          <select id="route-select">
+            <option value="all">All mapped routes</option>
+          </select>
+          <div id="route-detail" class="route-detail" aria-live="polite">
+            <p class="route-number">Network overview</p>
+            <p>Choose a route to isolate it and inspect its terminals.</p>
+          </div>
+          <button type="button" id="fit-map">Fit network</button>
+        </section>
+      </aside>
+      <div class="map-key" aria-hidden="true">
+        <span><i class="line all"></i>Network</span>
+        <span><i class="line selected"></i>Recommended</span>
+      </div>
+    </section>
+
+    <section class="ad-zone" data-ad-placement="after-map" hidden aria-label="Advertisement">
+      <span>Advertisement</span>
+      <ins class="adsbygoogle" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    </section>
+
+    <section class="content-section" aria-labelledby="planner-guide-title">
+      <div class="content-intro">
+        <p class="eyebrow">PLAN WITH CONTEXT</p>
+        <h2 id="planner-guide-title">How to use the Ama Bus route planner</h2>
+        <p>Search for a starting station and destination, then compare nearby direct services before considering a one-transfer journey. The map highlights the recommended route and shows estimated walking gaps between your selected station and the mapped bus corridor.</p>
+      </div>
+      <div class="content-grid">
+        <article>
+          <h3>What the map covers</h3>
+          <p>The planner combines 46 routes from the supplied 2024 capital-region network map with 43 route geometries currently published in OpenStreetMap. Search includes 86 named stations and route terminals across Bhubaneswar, Cuttack, Puri, Khordha, Jatani, Konark and nearby corridors.</p>
+        </article>
+        <article>
+          <h3>How recommendations work</h3>
+          <p>Direct routes are ranked by their distance from both selected stations. When no direct service is close enough, the planner checks for two routes whose mapped paths meet within a short walking distance. It does not use live timetables, fares or vehicle positions.</p>
+        </article>
+        <article>
+          <h3>Before you travel</h3>
+          <p>Use the result as a planning aid and confirm the boarding stop, operating direction and current service information before leaving. CRUT may change diversions, schedules and route coverage after the date represented by this map.</p>
+        </article>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>Independent route-planning aid. Not an official CRUT service. Roads and searchable stations © OpenStreetMap contributors.</p>
+      <nav aria-label="Footer navigation">
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </footer>
+  </main>
+
+  <script src="vendor/leaflet.js"></script>
+  <script src="data/stations.js"></script>
+  <script src="data/routes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+# Configure a real publisher ID with scripts/configure_adsense.py before requesting AdSense review.

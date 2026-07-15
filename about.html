@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Learn how the independent Ama Bus route planner combines the 2024 CRUT network map with OpenStreetMap route geometry.">
+  <title>About the Ama Bus Route Planner</title>
+  <script src="adsense-config.js"></script>
+  <script defer src="adsense-loader.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="info-shell">
+    <header class="masthead info-header">
+      <div class="brand-block">
+        <p class="eyebrow">ABOUT THIS PROJECT</p>
+        <h1>A clearer view of the Ama Bus network</h1>
+        <p class="subtitle">An independent geographic companion to the published capital-region route map.</p>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="index.html">Route planner</a>
+          <a href="about.html" aria-current="page">About</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="info-page">
+      <section>
+        <h2>Why this planner exists</h2>
+        <p>The official network diagram is useful for understanding connections, but it is schematic rather than geographic. This project places available Ama Bus routes on real roads so riders can compare corridors, understand the scale of a journey and identify likely transfer areas.</p>
+        <p>The site is designed as a planning aid for residents and visitors travelling across Bhubaneswar, Cuttack, Puri and neighbouring parts of Odisha’s capital region. It does not sell tickets, track vehicles or represent the operator.</p>
+      </section>
+
+      <section>
+        <h2>Data and methodology</h2>
+        <p>The route list and terminal descriptions come from the supplied 2024 CRUT capital-region network PDF. Road geometry comes from route relations published by OpenStreetMap contributors. Searchable stations combine named OpenStreetMap bus stops with mapped route terminals.</p>
+        <p>Forty-three of the 46 routes listed in the PDF have usable OpenStreetMap geometry in the current dataset. Routes 29E, 41 and 42 remain visible in the route explorer but are marked as unmapped instead of being drawn from guessed coordinates.</p>
+        <p>Recommendations are calculated from geographic proximity. A direct option must pass near both selected stations. Transfer suggestions look for two mapped corridors that approach one another closely enough to indicate a possible walking connection.</p>
+      </section>
+
+      <section>
+        <h2>Important limitations</h2>
+        <ul>
+          <li>The planner does not include live arrival times, service frequency, fares or temporary diversions.</li>
+          <li>A mapped line near a station does not guarantee that every bus stops there in both directions.</li>
+          <li>Walking estimates measure proximity to a route line, not a turn-by-turn pedestrian path.</li>
+          <li>OpenStreetMap and operator information can change after the dataset’s 14 July 2026 verification date.</li>
+        </ul>
+        <p>Always confirm current service information and the correct boarding direction before travel.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Independent route-planning aid. Not an official CRUT service. OpenStreetMap data © contributors.</p>
+      <nav aria-label="Footer navigation">
+        <a href="index.html">Planner</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </footer>
+  </div>
+</body>
+</html>
