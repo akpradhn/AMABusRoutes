@@ -20,7 +20,7 @@ The command enables `adsense-config.js` and writes the matching authorised-selle
 
 ## 2. Publish the complete site
 
-Deploy every HTML page, stylesheet, script, data file, vendor file, `robots.txt` and `ads.txt` at the same public origin. The site must be reachable without a password and must not block the AdSense crawler.
+Deploy every HTML page, stylesheet, script, data file, vendor file, `robots.txt` and `ads.txt` at the same public origin. The site must be reachable without a password and must not block the AdSense crawler. For Vercel-specific settings, see [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md).
 
 ## 3. Configure consent
 
@@ -29,7 +29,7 @@ In AdSense, open **Privacy & messaging** and configure Google’s CMP or another
 ## 4. Verify the public URLs
 
 - `/` loads the route planner and explanatory content.
-- `/about.html`, `/privacy.html` and `/terms.html` are linked from the primary navigation.
+- `/about`, `/privacy` and `/terms` are linked from the primary navigation.
 - `/ads.txt` displays the publisher’s real `pub-` line.
 - The AdSense script URL contains the same `ca-pub-` ID.
 - The map and station planner remain usable at desktop and mobile widths.

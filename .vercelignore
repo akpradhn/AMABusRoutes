@@ -1,0 +1,10 @@
+.git
+.DS_Store
+__pycache__
+*.py[cod]
+.venv
+tmp
+README.md
+ADSENSE_SETUP.md
+VERCEL_DEPLOYMENT.md
+scripts

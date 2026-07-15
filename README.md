@@ -12,6 +12,12 @@ python3 -m http.server 8080
 
 Open <http://localhost:8080>.
 
+## Deploy to Vercel
+
+The site is ready for Vercel's no-build static deployment. When importing the current parent repository, set **Root Directory** to `AMABusRoutes`, choose **Framework Preset: Other**, and leave the build, output and install commands empty.
+
+The included `vercel.json` provides clean page URLs and baseline security headers. See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for dashboard settings, CLI commands and production checks.
+
 ## AdSense setup
 
 The site ships with AdSense disabled so it never sends ad requests with a fake publisher ID. When a real AdSense account is available, configure it with:
