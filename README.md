@@ -2,6 +2,8 @@
 
 Interactive visualization and point-to-point planner for the 46 routes listed in the supplied 2024 CRUT capital-region network PDF. Forty-three routes use published OpenStreetMap route-relation geometry; 29E, 41 and 42 remain listed but are explicitly marked as unavailable in OSM.
 
+**Live site:** [https://ama-bus-routes.vercel.app/index.html](https://ama-bus-routes.vercel.app/index.html)
+
 The planner provides auto-matching searchable station fields, with map-click placement as a fallback. It ranks nearby direct routes and falls back to one-transfer suggestions when two mapped routes pass within 450 metres of each other. Walking distances are proximity estimates to the route lines, not verified boarding-stop or timetable information.
 
 ## Run locally
