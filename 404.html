@@ -6,29 +6,30 @@
   <meta name="robots" content="noindex">
   <meta name="description" content="The requested Ama Bus route-planner page could not be found.">
   <title>Page not found | Ama Bus Route Planner</title>
+  <script src="/i18n.js"></script>
   <link rel="stylesheet" href="/styles.css">
 </head>
-<body>
+<body data-page="error">
   <div class="info-shell">
     <header class="masthead info-header">
       <div class="brand-block">
-        <p class="eyebrow">404 · PAGE NOT FOUND</p>
-        <h1>That stop is not on this route</h1>
-        <p class="subtitle">The page may have moved, or the address may be incorrect.</p>
+        <p class="eyebrow" data-i18n="error.eyebrow">404 · PAGE NOT FOUND</p>
+        <h1 data-i18n="error.heading">That stop is not on this route</h1>
+        <p class="subtitle" data-i18n="error.subtitle">The page may have moved, or the address may be incorrect.</p>
         <nav class="site-nav" aria-label="Primary navigation">
-          <a href="/">Route planner</a>
-          <a href="/about">About</a>
-          <a href="/privacy">Privacy</a>
-          <a href="/terms">Terms</a>
+          <a href="/" data-i18n="common.planner">Route planner</a>
+          <a href="/about" data-i18n="common.about">About</a>
+          <a href="/privacy" data-i18n="common.privacy">Privacy</a>
+          <a href="/terms" data-i18n="common.terms">Terms</a>
         </nav>
       </div>
     </header>
 
     <main class="info-page">
       <section>
-        <h2>Return to the network map</h2>
-        <p>Open the route planner to search stations, compare direct services and explore mapped Ama Bus routes.</p>
-        <p><a class="secondary-button" href="/">Open route planner</a></p>
+        <h2 data-i18n="error.returnTitle">Return to the network map</h2>
+        <p data-i18n="error.returnText">Open the route planner to search stations, compare direct services and explore mapped Ama Bus routes.</p>
+        <p><a class="secondary-button" href="/" data-i18n="error.open">Open route planner</a></p>
       </section>
     </main>
   </div>

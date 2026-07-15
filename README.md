@@ -6,6 +6,8 @@ Interactive visualization and point-to-point planner for the 46 routes listed in
 
 The planner provides auto-matching searchable station fields, with map-click placement as a fallback. It ranks nearby direct routes and falls back to one-transfer suggestions when two mapped routes pass within 450 metres of each other. Walking distances are proximity estimates to the route lines, not verified boarding-stop or timetable information.
 
+English and Odia are supported across the planner and information pages. First-time visitors choose a language on the welcome screen; the saved preference can be changed at any time from the language selector at the top of every page.
+
 ## Run locally
 
 ```bash

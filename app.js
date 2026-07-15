@@ -1,4 +1,6 @@
 (() => {
+  const i18n = window.AmaBusI18n;
+  const t = (key, values) => i18n ? i18n.t(key, values) : key;
   const routes = window.AMA_BUS_ROUTES || [];
   const stations = window.AMA_BUS_STATIONS || [];
   const mappedRoutes = routes.filter((route) => route.lines.length);
@@ -23,7 +25,7 @@
   mappedRoutes.forEach((route) => {
     route.plannerPoints = route.lines.flatMap((line) => line.filter((_, index) => index % 8 === 0 || index === line.length - 1));
     const layer = L.polyline(route.lines, defaultStyle)
-      .bindTooltip(`Route ${route.ref}`, { sticky: true, direction: "top" })
+      .bindTooltip(t("app.route", { ref: route.ref }), { sticky: true, direction: "top" })
       .on("click", () => {
         if (!plannerMode) selectRoute(route.ref);
       });
@@ -64,12 +66,23 @@
     stationList.appendChild(option);
   });
 
-  routes.forEach((route) => {
-    const option = document.createElement("option");
-    option.value = route.ref;
-    option.textContent = `Route ${route.ref} · ${route.start} → ${route.end}${route.lines.length ? "" : " · not mapped"}`;
-    select.appendChild(option);
-  });
+  function populateRouteOptions() {
+    const selected = select.value || "all";
+    select.replaceChildren();
+    const allOption = document.createElement("option");
+    allOption.value = "all";
+    allOption.textContent = t("home.allRoutes");
+    select.appendChild(allOption);
+    routes.forEach((route) => {
+      const option = document.createElement("option");
+      option.value = route.ref;
+      option.textContent = `${t("app.route", { ref: route.ref })} · ${route.start} → ${route.end}${route.lines.length ? "" : ` · ${t("app.notMapped")}`}`;
+      select.appendChild(option);
+    });
+    select.value = routes.some((route) => route.ref === selected) ? selected : "all";
+  }
+
+  populateRouteOptions();
 
   function haversine(a, b) {
     const toRad = (value) => value * Math.PI / 180;
@@ -123,15 +136,15 @@
   }
 
   function formatWalk(distance) {
-    if (distance < 0.1) return "under 100 m";
-    if (distance < 1) return `${Math.round(distance * 1000 / 50) * 50} m`;
-    return `${distance.toFixed(1)} km`;
+    if (distance < 0.1) return t("app.under100");
+    if (distance < 1) return t("app.metres", { distance: Math.round(distance * 1000 / 50) * 50 });
+    return t("app.kilometres", { distance: distance.toFixed(1) });
   }
 
   function resetNetwork() {
     routeLayers.forEach((layer, ref) => {
       layer.setStyle(defaultStyle).bringToBack();
-      layer.unbindTooltip().bindTooltip(`Route ${ref}`, { sticky: true, direction: "top" });
+      layer.unbindTooltip().bindTooltip(t("app.route", { ref }), { sticky: true, direction: "top" });
     });
   }
 
@@ -159,26 +172,27 @@
     if (!journeyOptions.length) {
       const message = document.createElement("p");
       message.className = "planner-empty";
-      message.textContent = "No mapped route comes close enough to both points. Try placing the pins nearer a bus corridor.";
+      message.textContent = t("app.noRoute");
       plannerResults.appendChild(message);
-      tripSummary.innerHTML = "No close route combination found for these points.";
+      tripSummary.textContent = t("app.noCombination");
       resetNetwork();
       return;
     }
 
     const heading = document.createElement("h2");
-    heading.textContent = journeyOptions[0].transfer ? "Best one-transfer options" : "Best direct options";
+    heading.textContent = journeyOptions[0].transfer ? t("app.bestTransfer") : t("app.bestDirect");
     plannerResults.appendChild(heading);
-    tripSummary.innerHTML = `<strong>${journeyOptions.length} option${journeyOptions.length === 1 ? "" : "s"} found.</strong> Select one to compare.`;
+    tripSummary.innerHTML = `<strong>${t("app.optionsFound", { count: journeyOptions.length, plural: journeyOptions.length === 1 ? "" : "s" })}</strong> ${t("app.selectCompare")}`;
 
     journeyOptions.slice(0, 3).forEach((option, index) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "journey-option";
       button.setAttribute("aria-pressed", String(index === 0));
-      const routeLabel = option.routes.map((route) => `Route ${route.ref}`).join(" → ");
-      const transferLabel = option.transfer ? ` · transfer walk ${formatWalk(option.transfer.distance)}` : " · direct";
-      button.innerHTML = `<strong>${routeLabel}</strong><small>${formatWalk(option.startNearest.distance)} walk to board · ${formatWalk(option.endNearest.distance)} walk after alighting${transferLabel}</small>`;
+      const routeLabel = option.routes.map((route) => t("app.route", { ref: route.ref })).join(" → ");
+      const type = option.transfer ? t("app.transferWalk", { distance: formatWalk(option.transfer.distance) }) : t("app.direct");
+      const walkDetails = t("app.walkDetails", { start: formatWalk(option.startNearest.distance), end: formatWalk(option.endNearest.distance), type });
+      button.innerHTML = `<strong>${routeLabel}</strong><small>${walkDetails}</small>`;
       button.addEventListener("click", () => highlightJourney(option));
       plannerResults.appendChild(button);
     });
@@ -228,7 +242,7 @@
     endButton.setAttribute("aria-pressed", String(type === "end"));
     map.getContainer().classList.toggle("planning-start", type === "start");
     map.getContainer().classList.toggle("planning-end", type === "end");
-    tripSummary.innerHTML = type === "start" ? "Click the map to place your <strong>starting point</strong>." : "Click the map to place your <strong>destination</strong>.";
+    tripSummary.innerHTML = type === "start" ? t("app.clickStart") : t("app.clickDestination");
   }
 
   function placePoint(type, latlng, stationName = null) {
@@ -239,12 +253,12 @@
       startStationName = stationName;
       if (!stationName) startStationInput.value = "";
       if (startMarker) tripGroup.removeLayer(startMarker);
-      startMarker = L.circleMarker(point, { radius: 8, color: "#fff", weight: 3, fillColor: "#1f8a5b", fillOpacity: 1 }).bindTooltip(stationName || "Start", { permanent: true, direction: "top", className: "route-label" }).addTo(tripGroup);
+      startMarker = L.circleMarker(point, { radius: 8, color: "#fff", weight: 3, fillColor: "#1f8a5b", fillOpacity: 1 }).bindTooltip(stationName || t("app.start"), { permanent: true, direction: "top", className: "route-label" }).addTo(tripGroup);
       if (!endPoint) {
         pendingPoint = null;
         startButton.setAttribute("aria-pressed", "false");
         map.getContainer().classList.remove("planning-start");
-        tripSummary.innerHTML = "Now choose your <strong>destination station</strong>.";
+        tripSummary.innerHTML = t("app.chooseDestination");
         endStationInput.focus();
       }
     } else {
@@ -252,7 +266,7 @@
       endStationName = stationName;
       if (!stationName) endStationInput.value = "";
       if (endMarker) tripGroup.removeLayer(endMarker);
-      endMarker = L.circleMarker(point, { radius: 8, color: "#fff", weight: 3, fillColor: "#e3522c", fillOpacity: 1 }).bindTooltip(stationName || "Destination", { permanent: true, direction: "top", className: "route-label" }).addTo(tripGroup);
+      endMarker = L.circleMarker(point, { radius: 8, color: "#fff", weight: 3, fillColor: "#e3522c", fillOpacity: 1 }).bindTooltip(stationName || t("app.destination"), { permanent: true, direction: "top", className: "route-label" }).addTo(tripGroup);
     }
 
     if (startPoint && endPoint) {
@@ -260,10 +274,10 @@
       startButton.setAttribute("aria-pressed", "false");
       endButton.setAttribute("aria-pressed", "false");
       map.getContainer().classList.remove("planning-start", "planning-end");
-      tripSummary.innerHTML = "Comparing mapped routes near both points…";
+      tripSummary.textContent = t("app.comparing");
       planTrip();
     } else if (!startPoint) {
-      tripSummary.innerHTML = "Now choose your <strong>starting station</strong>.";
+      tripSummary.innerHTML = t("app.chooseStartHtml");
       startStationInput.focus();
     }
   }
@@ -282,7 +296,7 @@
       return;
     }
     if (allowAutoMatch && input.value.trim()) {
-      tripSummary.innerHTML = "Keep typing or select a station from the matching dropdown.";
+      tripSummary.textContent = t("app.keepTyping");
     }
   }
 
@@ -303,7 +317,7 @@
     startButton.setAttribute("aria-pressed", "false");
     endButton.setAttribute("aria-pressed", "false");
     map.getContainer().classList.remove("planning-start", "planning-end");
-    tripSummary.innerHTML = "Choose your starting station.";
+    tripSummary.textContent = t("home.chooseStart");
     map.fitBounds(networkBounds, { padding: [24, 24] });
   }
 
@@ -333,11 +347,15 @@
       layer.setStyle(selectedStyles[0]).bringToFront();
       map.fitBounds(layer.getBounds(), { padding: [48, 48], maxZoom: 13 });
     }
-    const via = route.via ? `<p class="via">Via ${route.via}</p>` : "";
+    const via = route.via ? `<p class="via">${t("app.via", { via: route.via })}</p>` : "";
     const source = route.relationId
-      ? `<p><a href="https://www.openstreetmap.org/relation/${route.relationId}" target="_blank" rel="noreferrer">View OSM relation ↗</a></p>`
-      : '<p class="missing">No route geometry is published in OSM yet.</p>';
-    detail.innerHTML = `<p class="route-number">Route ${route.ref}</p><p>${route.start} → ${route.end}</p>${via}${source}`;
+      ? `<p><a href="https://www.openstreetmap.org/relation/${route.relationId}" target="_blank" rel="noreferrer">${t("app.viewOsm")}</a></p>`
+      : `<p class="missing">${t("app.noGeometry")}</p>`;
+    detail.innerHTML = `<p class="route-number">${t("app.route", { ref: route.ref })}</p><p>${route.start} → ${route.end}</p>${via}${source}`;
+  }
+
+  function showNetworkOverview() {
+    detail.innerHTML = `<p class="route-number">${t("home.networkOverview")}</p><p>${t("home.chooseRoute")}</p>`;
   }
 
   map.on("click", (event) => {
@@ -357,7 +375,7 @@
     if (select.value === "all") {
       resetNetwork();
       map.fitBounds(networkBounds, { padding: [24, 24] });
-      detail.innerHTML = '<p class="route-number">Network overview</p><p>Choose a route to isolate it and inspect its terminals.</p>';
+      showNetworkOverview();
     } else {
       selectRoute(select.value);
     }
@@ -367,7 +385,30 @@
     select.value = "all";
     resetNetwork();
     map.fitBounds(networkBounds, { padding: [24, 24] });
-    detail.innerHTML = '<p class="route-number">Network overview</p><p>Choose a route to isolate it and inspect its terminals.</p>';
+    showNetworkOverview();
+  });
+
+  window.addEventListener("amabus:languagechange", () => {
+    const selectedRoute = select.value;
+    populateRouteOptions();
+    resetNetwork();
+    if (startMarker && !startStationName) startMarker.setTooltipContent(t("app.start"));
+    if (endMarker && !endStationName) endMarker.setTooltipContent(t("app.destination"));
+    if (journeyOptions.length) {
+      renderPlannerResults();
+    } else if (pendingPoint) {
+      setPendingPoint(pendingPoint);
+    } else if (startPoint && !endPoint) {
+      tripSummary.innerHTML = t("app.chooseDestination");
+    } else if (!startPoint && endPoint) {
+      tripSummary.innerHTML = t("app.chooseStartHtml");
+    } else {
+      tripSummary.textContent = t("home.chooseStart");
+    }
+    if (!plannerMode) {
+      if (selectedRoute !== "all") selectRoute(selectedRoute);
+      else showNetworkOverview();
+    }
   });
 
   pendingPoint = null;

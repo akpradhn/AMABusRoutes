@@ -7,25 +7,26 @@
   <title>Ama Bus Route Planner | Bhubaneswar, Cuttack and Puri</title>
   <script src="adsense-config.js"></script>
   <script defer src="adsense-loader.js"></script>
+  <script src="i18n.js"></script>
   <link rel="stylesheet" href="vendor/leaflet.css">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body data-page="home">
   <main class="app-shell">
     <header class="masthead">
       <div class="brand-block">
-        <p class="eyebrow">CRUT CAPITAL REGION · 2024 NETWORK</p>
-        <h1>Ama Bus on OpenStreetMap</h1>
-        <p class="subtitle">Choose two points to find direct or one-transfer Ama Bus options across the capital region.</p>
+        <p class="eyebrow" data-i18n="home.eyebrow">CRUT CAPITAL REGION · 2024 NETWORK</p>
+        <h1 data-i18n="home.heading">Ama Bus on OpenStreetMap</h1>
+        <p class="subtitle" data-i18n="home.subtitle">Choose two points to find direct or one-transfer Ama Bus options across the capital region.</p>
         <nav class="site-nav" aria-label="Primary navigation">
-          <a href="./" aria-current="page">Route planner</a>
-          <a href="about.html">About</a>
-          <a href="privacy.html">Privacy</a>
-          <a href="terms.html">Terms</a>
+          <a href="./" aria-current="page" data-i18n="common.planner">Route planner</a>
+          <a href="about.html" data-i18n="common.about">About</a>
+          <a href="privacy.html" data-i18n="common.privacy">Privacy</a>
+          <a href="terms.html" data-i18n="common.terms">Terms</a>
         </nav>
       </div>
       <div class="coverage" aria-label="Map coverage">
-        <strong>43</strong><span>mapped routes</span>
+        <strong>43</strong><span data-i18n="home.mappedRoutes">mapped routes</span>
       </div>
     </header>
 
@@ -33,81 +34,81 @@
       <div id="map"></div>
       <aside class="route-panel" aria-label="Route controls">
         <div class="mode-tabs" aria-label="Map mode">
-          <button type="button" id="mode-plan" aria-pressed="true">Plan a trip</button>
-          <button type="button" id="mode-explore" aria-pressed="false">Explore routes</button>
+          <button type="button" id="mode-plan" aria-pressed="true" data-i18n="home.planTrip">Plan a trip</button>
+          <button type="button" id="mode-explore" aria-pressed="false" data-i18n="home.explore">Explore routes</button>
         </div>
 
         <section id="planner-view" aria-label="Trip planner">
-          <p class="panel-prompt">Search stations; suggestions auto-match as you type.</p>
+          <p class="panel-prompt" data-i18n="home.prompt">Search stations; suggestions auto-match as you type.</p>
           <div class="station-fields">
-            <label for="start-station">From station
-              <input id="start-station" type="search" list="station-list" autocomplete="off" placeholder="Type a station name">
+            <label for="start-station"><span data-i18n="home.from">From station</span>
+              <input id="start-station" type="search" list="station-list" autocomplete="off" placeholder="Type a station name" data-i18n-placeholder="home.stationPlaceholder">
             </label>
-            <label for="end-station">To station
-              <input id="end-station" type="search" list="station-list" autocomplete="off" placeholder="Type a station name">
+            <label for="end-station"><span data-i18n="home.to">To station</span>
+              <input id="end-station" type="search" list="station-list" autocomplete="off" placeholder="Type a station name" data-i18n-placeholder="home.stationPlaceholder">
             </label>
             <datalist id="station-list"></datalist>
           </div>
           <div class="point-actions">
-            <button type="button" id="set-start" aria-pressed="false">Pick start on map</button>
-            <button type="button" id="set-end" aria-pressed="false">Pick destination on map</button>
+            <button type="button" id="set-start" aria-pressed="false" data-i18n="home.pickStart">Pick start on map</button>
+            <button type="button" id="set-end" aria-pressed="false" data-i18n="home.pickDestination">Pick destination on map</button>
           </div>
-          <div id="trip-summary" class="trip-summary" aria-live="polite">Choose your starting station.</div>
+          <div id="trip-summary" class="trip-summary" aria-live="polite" data-i18n="home.chooseStart">Choose your starting station.</div>
           <div id="planner-results" class="planner-results" aria-live="polite"></div>
-          <button type="button" id="clear-trip" class="secondary-button">Clear trip</button>
+          <button type="button" id="clear-trip" class="secondary-button" data-i18n="home.clear">Clear trip</button>
         </section>
 
         <section id="explore-view" hidden aria-label="Route explorer">
-          <label for="route-select">Route</label>
+          <label for="route-select" data-i18n="home.route">Route</label>
           <select id="route-select">
-            <option value="all">All mapped routes</option>
+            <option value="all" data-i18n="home.allRoutes">All mapped routes</option>
           </select>
           <div id="route-detail" class="route-detail" aria-live="polite">
-            <p class="route-number">Network overview</p>
-            <p>Choose a route to isolate it and inspect its terminals.</p>
+            <p class="route-number" data-i18n="home.networkOverview">Network overview</p>
+            <p data-i18n="home.chooseRoute">Choose a route to isolate it and inspect its terminals.</p>
           </div>
-          <button type="button" id="fit-map">Fit network</button>
+          <button type="button" id="fit-map" data-i18n="home.fitNetwork">Fit network</button>
         </section>
       </aside>
       <div class="map-key" aria-hidden="true">
-        <span><i class="line all"></i>Network</span>
-        <span><i class="line selected"></i>Recommended</span>
+        <span><i class="line all"></i><b data-i18n="home.network">Network</b></span>
+        <span><i class="line selected"></i><b data-i18n="home.recommended">Recommended</b></span>
       </div>
     </section>
 
     <section class="ad-zone" data-ad-placement="after-map" hidden aria-label="Advertisement">
-      <span>Advertisement</span>
+      <span data-i18n="home.advertisement">Advertisement</span>
       <ins class="adsbygoogle" data-ad-format="auto" data-full-width-responsive="true"></ins>
     </section>
 
     <section class="content-section" aria-labelledby="planner-guide-title">
       <div class="content-intro">
-        <p class="eyebrow">PLAN WITH CONTEXT</p>
-        <h2 id="planner-guide-title">How to use the Ama Bus route planner</h2>
-        <p>Search for a starting station and destination, then compare nearby direct services before considering a one-transfer journey. The map highlights the recommended route and shows estimated walking gaps between your selected station and the mapped bus corridor.</p>
+        <p class="eyebrow" data-i18n="home.contextEyebrow">PLAN WITH CONTEXT</p>
+        <h2 id="planner-guide-title" data-i18n="home.guideTitle">How to use the Ama Bus route planner</h2>
+        <p data-i18n="home.guideIntro">Search for a starting station and destination, then compare nearby direct services before considering a one-transfer journey. The map highlights the recommended route and shows estimated walking gaps between your selected station and the mapped bus corridor.</p>
       </div>
       <div class="content-grid">
         <article>
-          <h3>What the map covers</h3>
-          <p>The planner combines 46 routes from the supplied 2024 capital-region network map with 43 route geometries currently published in OpenStreetMap. Search includes 86 named stations and route terminals across Bhubaneswar, Cuttack, Puri, Khordha, Jatani, Konark and nearby corridors.</p>
+          <h3 data-i18n="home.coverageTitle">What the map covers</h3>
+          <p data-i18n="home.coverageText">The planner combines 46 routes from the supplied 2024 capital-region network map with 43 route geometries currently published in OpenStreetMap. Search includes 86 named stations and route terminals across Bhubaneswar, Cuttack, Puri, Khordha, Jatani, Konark and nearby corridors.</p>
         </article>
         <article>
-          <h3>How recommendations work</h3>
-          <p>Direct routes are ranked by their distance from both selected stations. When no direct service is close enough, the planner checks for two routes whose mapped paths meet within a short walking distance. It does not use live timetables, fares or vehicle positions.</p>
+          <h3 data-i18n="home.recommendTitle">How recommendations work</h3>
+          <p data-i18n="home.recommendText">Direct routes are ranked by their distance from both selected stations. When no direct service is close enough, the planner checks for two routes whose mapped paths meet within a short walking distance. It does not use live timetables, fares or vehicle positions.</p>
         </article>
         <article>
-          <h3>Before you travel</h3>
-          <p>Use the result as a planning aid and confirm the boarding stop, operating direction and current service information before leaving. CRUT may change diversions, schedules and route coverage after the date represented by this map.</p>
+          <h3 data-i18n="home.travelTitle">Before you travel</h3>
+          <p data-i18n="home.travelText">Use the result as a planning aid and confirm the boarding stop, operating direction and current service information before leaving. CRUT may change diversions, schedules and route coverage after the date represented by this map.</p>
         </article>
       </div>
     </section>
 
     <footer class="site-footer">
-      <p>Independent route-planning aid. Not an official CRUT service. Roads and searchable stations © OpenStreetMap contributors.</p>
+      <p data-i18n="home.footer">Independent route-planning aid. Not an official CRUT service. Roads and searchable stations © OpenStreetMap contributors.</p>
       <nav aria-label="Footer navigation">
-        <a href="about.html">About</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
+        <a href="about.html" data-i18n="common.about">About</a>
+        <a href="privacy.html" data-i18n="common.privacy">Privacy</a>
+        <a href="terms.html" data-i18n="common.terms">Terms</a>
       </nav>
     </footer>
   </main>
