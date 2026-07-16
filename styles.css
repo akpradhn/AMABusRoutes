@@ -13,6 +13,7 @@
 
 * { box-sizing: border-box; }
 
+html { min-width: 20rem; }
 html, body { margin: 0; min-height: 100%; }
 
 body {
@@ -40,7 +41,7 @@ body {
   display: flex;
   justify-content: flex-end;
   min-height: 3rem;
-  padding: .3rem clamp(1rem, 3vw, 3rem);
+  padding: .3rem max(clamp(1rem, 3vw, 3rem), env(safe-area-inset-right)) .3rem max(clamp(1rem, 3vw, 3rem), env(safe-area-inset-left));
   border-top: 4px solid #7743a5;
   background: #c90000;
   box-shadow: 0 2px 8px rgba(16, 37, 61, .18);
@@ -72,6 +73,9 @@ body {
 
 .language-card {
   width: min(31rem, 100%);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: clamp(1.4rem, 5vw, 2.5rem);
   border-radius: 18px;
   background: #fff;
@@ -89,7 +93,7 @@ body {
 .language-card label small { color: var(--muted); }
 .language-card button { margin-top: .2rem; }
 
-.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.app-shell { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
 
 .masthead {
   display: flex;
@@ -100,6 +104,8 @@ body {
   background: #fff;
   border-bottom: 1px solid var(--border);
 }
+
+.brand-block { min-width: 0; }
 
 .eyebrow {
   margin: 0 0 .35rem;
@@ -122,7 +128,7 @@ h1 { margin: 0; font-size: clamp(1.65rem, 3.2vw, 2.7rem); line-height: 1.04; let
 .coverage strong { color: var(--network); font-size: 2rem; line-height: 1; }
 .coverage span { color: var(--muted); font-size: .78rem; }
 
-.map-stage { position: relative; flex: 1; min-height: 68vh; }
+.map-stage { position: relative; flex: 1; min-height: 68vh; min-height: 68dvh; }
 #map { position: absolute; inset: 0; background: #d9e7ee; }
 
 .route-panel {
@@ -211,7 +217,7 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px s
 .map-key {
   position: absolute;
   z-index: 700;
-  right: .75rem;
+  right: 4.25rem;
   bottom: 1.6rem;
   display: flex;
   gap: .8rem;
@@ -286,19 +292,129 @@ footer p { margin: 0; max-width: 52rem; }
 .site-footer { margin-top: auto; align-items: center; }
 .site-footer nav { display: flex; flex-wrap: wrap; gap: .8rem 1rem; }
 
-@media (max-width: 640px) {
-  .language-toolbar { padding-right: .7rem; }
-  .language-toolbar select { min-width: 6.8rem; }
-  .masthead { align-items: flex-start; padding-bottom: .9rem; }
-  .coverage { min-width: auto; }
-  .subtitle { display: none; }
-  .map-stage { min-height: 72vh; }
-  .route-panel { top: .65rem; left: .65rem; width: calc(100% - 1.3rem); padding: .75rem; }
-  .point-actions { display: none; }
-  .route-detail { min-height: 0; }
-  .map-key { bottom: .85rem; }
-  footer { display: block; }
-  .site-footer nav { margin-top: .6rem; }
+@media (min-width: 75rem) {
+  .route-panel { width: 22rem; padding: 1.15rem; }
+  .map-stage { min-height: 72vh; min-height: 72dvh; }
+}
+
+@media (min-width: 40.0625rem) and (max-width: 64rem) {
+  .masthead { gap: 1.25rem; }
+  .route-panel { width: min(22rem, calc(100% - 2rem)); }
+  .content-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .content-grid article:last-child { grid-column: 1 / -1; }
+}
+
+@media (max-width: 40rem) {
+  .language-toolbar {
+    min-height: 2.85rem;
+    padding-right: max(.7rem, env(safe-area-inset-right));
+    padding-left: max(.7rem, env(safe-area-inset-left));
+  }
+  .language-toolbar label { gap: .4rem; font-size: .88rem; }
+  .language-toolbar select { min-width: 6.8rem; min-height: 2rem; font-size: 1rem; }
+
+  .language-welcome {
+    align-items: safe center;
+    padding: max(.75rem, env(safe-area-inset-top)) max(.75rem, env(safe-area-inset-right)) max(.75rem, env(safe-area-inset-bottom)) max(.75rem, env(safe-area-inset-left));
+  }
+  .language-card { padding: 1.25rem; border-radius: 14px; }
+  .language-card > p:not(.eyebrow) { margin-bottom: 1rem; font-size: .9rem; }
+  .language-card fieldset label { min-height: 3.75rem; }
+
+  .masthead {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: .75rem;
+    padding: 1rem max(1rem, env(safe-area-inset-right)) .9rem max(1rem, env(safe-area-inset-left));
+  }
+  .masthead h1 { font-size: clamp(1.55rem, 8vw, 2rem); line-height: 1.08; }
+  .eyebrow { font-size: .65rem; line-height: 1.35; }
+  .subtitle { font-size: .82rem; line-height: 1.45; }
+  .site-nav { width: calc(100vw - 2rem); gap: .5rem 1rem; margin-top: .7rem; }
+  .site-nav a { min-height: 1.5rem; display: inline-flex; align-items: center; }
+  .coverage { min-width: 4.5rem; padding-top: .15rem; text-align: right; }
+  .coverage strong { font-size: 1.75rem; }
+  .coverage span { max-width: 5.5rem; margin-left: auto; font-size: .68rem; line-height: 1.2; }
+
+  .map-stage {
+    display: grid;
+    grid-template-rows: auto minmax(26rem, 62dvh);
+    min-height: 0;
+    background: #d9e7ee;
+  }
+  #map {
+    position: relative;
+    inset: auto;
+    grid-row: 2;
+    min-height: 26rem;
+  }
+  .route-panel {
+    position: relative;
+    z-index: 900;
+    top: auto;
+    left: auto;
+    grid-row: 1;
+    width: 100%;
+    padding: .9rem max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left));
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(16, 37, 61, .12);
+    backdrop-filter: none;
+  }
+  .mode-tabs { gap: .45rem; margin-bottom: .75rem; padding-bottom: .75rem; }
+  .mode-tabs button { min-height: 2.75rem; font-size: .8rem; }
+  .panel-prompt { line-height: 1.4; }
+  .station-fields { gap: .65rem; }
+  .station-fields input,
+  #route-select { min-height: 3rem; font-size: 1rem; }
+  .point-actions { grid-template-columns: 1fr 1fr; gap: .55rem; }
+  .point-actions button { min-height: 2.75rem; padding: .45rem; font-size: .72rem; }
+  .trip-summary { margin-top: .8rem; font-size: .82rem; }
+  .journey-option { min-height: 3rem; padding: .65rem .7rem; }
+  .journey-option small { font-size: .72rem; }
+  .secondary-button,
+  #fit-map { min-height: 2.85rem; }
+  .route-detail { min-height: 0; margin-top: .75rem; }
+
+  .map-key {
+    right: auto;
+    bottom: 1.6rem;
+    left: .65rem;
+    max-width: calc(100% - 4.75rem);
+    flex-wrap: wrap;
+    gap: .45rem .7rem;
+    font-size: .68rem;
+  }
+  .map-key .line { width: 1.25rem; }
+  .leaflet-control-attribution { max-width: calc(100vw - 5rem); white-space: normal; line-height: 1.25; }
+
+  .content-section { width: min(100% - 2rem, 36rem); padding: 2.5rem 0; }
+  .content-grid { grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1.6rem; }
+  .content-section p, .info-page p, .info-page li { line-height: 1.6; }
+  .info-page { width: min(100% - 2rem, 36rem); padding: 2.5rem 0; }
+  .info-page section + section { margin-top: 2rem; padding-top: 1.5rem; }
+
+  footer {
+    display: block;
+    padding: 1rem max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+    font-size: .72rem;
+    line-height: 1.5;
+  }
+  .site-footer nav { margin-top: .75rem; }
   footer p + p { margin-top: .35rem; }
-  .content-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 23.75rem) {
+  .masthead { grid-template-columns: 1fr; }
+  .coverage { grid-row: 1; grid-column: 1; justify-self: end; }
+  .brand-block { padding-right: 4.75rem; }
+  .site-nav { padding-right: 0; }
+  .language-card h1 { font-size: 1.5rem; }
+}
+
+@media (max-height: 31.25rem) and (max-width: 40rem) {
+  .language-welcome { align-items: start; overflow-y: auto; }
+  .language-card { max-height: none; }
 }
