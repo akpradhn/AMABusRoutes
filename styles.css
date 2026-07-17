@@ -128,7 +128,7 @@ body.loading-active { overflow: hidden; }
 
 .animated-bus svg { display: block; width: 100%; overflow: visible; animation: bus-bob .28s ease-in-out infinite alternate; }
 .bus-shadow { fill: rgba(0, 0, 0, .35); }
-.bus-body { fill: url(#bus-body-gradient); stroke: #ff6b75; stroke-width: 2; }
+.bus-body { fill: url(#bus-body-gradient); stroke: #70e5a7; stroke-width: 2; }
 .bus-accent { fill: #ffcf3f; }
 .bus-bumper { fill: #eef7ff; }
 .bus-window { fill: #bfe4ff; stroke: #eaf7ff; stroke-width: 1.5; }

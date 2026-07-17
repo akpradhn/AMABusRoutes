@@ -4,11 +4,20 @@
   const routes = window.AMA_BUS_ROUTES || [];
   const stations = window.AMA_BUS_STATIONS || [];
   const mappedRoutes = routes.filter((route) => route.lines.length);
-  const map = L.map("map", { zoomControl: false });
+  const odishaBounds = L.latLngBounds([17.75, 81.25], [22.65, 87.65]);
+  const map = L.map("map", {
+    zoomControl: false,
+    minZoom: 7,
+    maxBounds: odishaBounds,
+    maxBoundsViscosity: 1,
+    worldCopyJump: false
+  });
   L.control.zoom({ position: "bottomright" }).addTo(map);
 
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
+    bounds: odishaBounds,
+    noWrap: true,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
   }).addTo(map);
 
