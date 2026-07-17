@@ -175,6 +175,8 @@ body.loading-active { overflow: hidden; }
   .loading-dots::after,
   .loading-progress span { animation: none; }
   .loading-progress span { width: 100%; opacity: .65; }
+  .route-animation-dot { animation: none; }
+  .map-bus { transition: none; }
 }
 
 .sr-only {
@@ -368,6 +370,83 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px s
 .route-detail .via { color: var(--muted); }
 .route-detail .missing { color: #9f2b23; font-weight: 700; }
 .route-detail a { color: var(--network); font-weight: 650; }
+
+.route-animation-info {
+  display: flex;
+  align-items: flex-start;
+  gap: .45rem;
+  margin-top: .65rem;
+  padding-top: .65rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: .76rem;
+  line-height: 1.35;
+}
+
+.route-animation-dot {
+  flex: 0 0 auto;
+  width: .55rem;
+  height: .55rem;
+  margin-top: .22rem;
+  border-radius: 50%;
+  background: #15945a;
+  box-shadow: 0 0 0 4px rgba(21, 148, 90, .14);
+  animation: route-animation-pulse 1.4s ease-in-out infinite;
+}
+
+.route-bus-icon { background: transparent; border: 0; }
+.map-bus {
+  --bus-angle: 0deg;
+  position: relative;
+  display: block;
+  width: 42px;
+  height: 22px;
+  border: 2px solid #086c3c;
+  border-radius: 7px 9px 5px 5px;
+  background: linear-gradient(180deg, #35c979 0 66%, #ffcf3f 66% 100%);
+  box-shadow: 0 4px 10px rgba(16, 37, 61, .3);
+  transform: rotate(var(--bus-angle));
+  transition: transform .18s linear;
+  transform-origin: center;
+}
+.map-bus::before,
+.map-bus::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #eef7ff;
+  border-radius: 50%;
+  background: #10253d;
+}
+.map-bus::before { left: 5px; }
+.map-bus::after { right: 5px; }
+.map-bus i {
+  position: absolute;
+  top: 3px;
+  width: 12px;
+  height: 7px;
+  border-radius: 2px;
+  background: #dff3ff;
+}
+.map-bus i:first-child { left: 5px; }
+.map-bus i:nth-child(2) { left: 20px; }
+.map-bus b { display: none; }
+
+.bus-stop-label {
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #087f45 !important;
+  color: #fff !important;
+  box-shadow: 0 3px 10px rgba(16, 37, 61, .25) !important;
+  font-weight: 800;
+}
+.bus-stop-label::before { border-top-color: #087f45 !important; }
+
+@keyframes route-animation-pulse {
+  50% { opacity: .48; transform: scale(.82); }
+}
 
 .map-key {
   position: absolute;

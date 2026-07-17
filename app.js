@@ -23,6 +23,7 @@
 
   const networkGroup = L.featureGroup().addTo(map);
   const tripGroup = L.featureGroup().addTo(map);
+  const animationGroup = L.layerGroup().addTo(map);
   const routeLayers = new Map();
   const defaultStyle = { color: "#2577b9", weight: 2.4, opacity: 0.38, lineCap: "round", lineJoin: "round" };
   const fadedStyle = { color: "#6f879b", weight: 1.7, opacity: 0.14 };
@@ -68,6 +69,17 @@
   let startStationName = null;
   let endStationName = null;
   let journeyOptions = [];
+  let routeAnimationId = 0;
+  let routeAnimationFrame = null;
+  let routeAnimationTimer = null;
+
+  const busIcon = L.divIcon({
+    className: "route-bus-icon",
+    html: '<span class="map-bus" aria-hidden="true"><i></i><i></i><b></b><b></b></span>',
+    iconSize: [46, 28],
+    iconAnchor: [23, 14],
+    tooltipAnchor: [0, -17]
+  });
 
   stations.forEach((station) => {
     const option = document.createElement("option");
@@ -101,6 +113,179 @@
     const lat2 = toRad(b[0]);
     const value = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
     return 6371 * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+  }
+
+  function stopRouteAnimation() {
+    routeAnimationId += 1;
+    if (routeAnimationFrame) cancelAnimationFrame(routeAnimationFrame);
+    if (routeAnimationTimer) clearTimeout(routeAnimationTimer);
+    routeAnimationFrame = null;
+    routeAnimationTimer = null;
+    animationGroup.clearLayers();
+  }
+
+  function terminalStation(name) {
+    const query = normalize(name);
+    return stations.find((station) => {
+      const stationName = normalize(station.name);
+      return stationName === query || stationName.includes(query) || query.includes(stationName);
+    }) || null;
+  }
+
+  function animationPath(route) {
+    const remaining = route.lines.filter((line) => line.length > 1).map((line) => line.slice());
+    if (!remaining.length) return [];
+
+    const start = terminalStation(route.start);
+    const startPoint = start ? [start.lat, start.lon] : remaining[0][0];
+    let firstIndex = 0;
+    let reverseFirst = false;
+    let firstDistance = Infinity;
+    remaining.forEach((line, index) => {
+      const startDistance = haversine(startPoint, line[0]);
+      const endDistance = haversine(startPoint, line[line.length - 1]);
+      if (Math.min(startDistance, endDistance) < firstDistance) {
+        firstDistance = Math.min(startDistance, endDistance);
+        firstIndex = index;
+        reverseFirst = endDistance < startDistance;
+      }
+    });
+
+    const first = remaining.splice(firstIndex, 1)[0];
+    const path = reverseFirst ? first.reverse() : first;
+    while (remaining.length) {
+      const current = path[path.length - 1];
+      let nextIndex = -1;
+      let reverseNext = false;
+      let nextDistance = Infinity;
+      remaining.forEach((line, index) => {
+        const startDistance = haversine(current, line[0]);
+        const endDistance = haversine(current, line[line.length - 1]);
+        if (Math.min(startDistance, endDistance) < nextDistance) {
+          nextDistance = Math.min(startDistance, endDistance);
+          nextIndex = index;
+          reverseNext = endDistance < startDistance;
+        }
+      });
+      if (nextIndex < 0 || nextDistance > 0.75) break;
+      const next = remaining.splice(nextIndex, 1)[0];
+      if (reverseNext) next.reverse();
+      path.push(...next.slice(haversine(current, next[0]) < 0.005 ? 1 : 0));
+    }
+    return path;
+  }
+
+  function routeHalts(route, path) {
+    const matched = stations.map((station) => {
+      let bestIndex = 0;
+      let bestDistance = Infinity;
+      const stationPoint = [station.lat, station.lon];
+      path.forEach((point, index) => {
+        const distance = haversine(stationPoint, point);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestIndex = index;
+        }
+      });
+      return { name: station.name, index: bestIndex, distance: bestDistance, source: station.source };
+    }).filter((halt) => halt.distance <= (halt.source === "terminal" ? 0.35 : 0.16));
+
+    matched.push({ name: route.start, index: 0, distance: 0, source: "terminal" });
+    matched.push({ name: route.end, index: path.length - 1, distance: 0, source: "terminal" });
+    matched.sort((a, b) => a.index - b.index || a.distance - b.distance);
+
+    return matched.filter((halt, index, list) => {
+      const duplicateName = list.slice(0, index).some((item) => normalize(item.name) === normalize(halt.name));
+      const previous = list[index - 1];
+      const tooClose = previous && previous.index !== 0 && halt.index !== path.length - 1 && Math.abs(halt.index - previous.index) < 5;
+      return !duplicateName && !tooClose;
+    });
+  }
+
+  function updateBusDirection(marker, from, to) {
+    const fromPoint = map.latLngToLayerPoint(from);
+    const toPoint = map.latLngToLayerPoint(to);
+    const angle = Math.atan2(toPoint.y - fromPoint.y, toPoint.x - fromPoint.x) * 180 / Math.PI;
+    const bus = marker.getElement()?.querySelector(".map-bus");
+    if (bus) bus.style.setProperty("--bus-angle", `${angle}deg`);
+  }
+
+  function startRouteAnimation(route) {
+    stopRouteAnimation();
+    const path = animationPath(route);
+    if (path.length < 2) return;
+    const halts = routeHalts(route, path);
+    const animationId = routeAnimationId;
+    const marker = L.marker(path[0], { icon: busIcon, keyboard: false, zIndexOffset: 1000 }).addTo(animationGroup);
+    marker.bindTooltip("", { direction: "top", className: "bus-stop-label", opacity: 1 });
+    const status = detail.querySelector(".route-animation-status");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const showHalt = (halt) => {
+      marker.setLatLng(path[halt.index]);
+      marker.setTooltipContent(t("app.busAt", { stop: halt.name })).openTooltip();
+      if (status) status.textContent = t("app.busAt", { stop: halt.name });
+    };
+
+    if (reducedMotion) {
+      showHalt(halts[0]);
+      if (status) status.textContent = t("app.animationReduced", { stop: halts[0].name });
+      return;
+    }
+
+    const animateLeg = (fromIndex, toIndex, duration, done) => {
+      const points = path.slice(fromIndex, toIndex + 1);
+      const cumulative = [0];
+      for (let index = 1; index < points.length; index += 1) {
+        cumulative.push(cumulative[index - 1] + haversine(points[index - 1], points[index]));
+      }
+      const total = cumulative[cumulative.length - 1] || 0.001;
+      const started = performance.now();
+      marker.closeTooltip();
+      if (status) status.textContent = t("app.busTravelling");
+
+      const step = (now) => {
+        if (animationId !== routeAnimationId) return;
+        const target = Math.min((now - started) / duration, 1) * total;
+        let index = 1;
+        while (index < cumulative.length && cumulative[index] < target) index += 1;
+        const previousIndex = Math.max(0, index - 1);
+        const nextIndex = Math.min(index, points.length - 1);
+        const segmentDistance = cumulative[nextIndex] - cumulative[previousIndex] || 1;
+        const segmentProgress = (target - cumulative[previousIndex]) / segmentDistance;
+        const from = points[previousIndex];
+        const to = points[nextIndex];
+        const position = [
+          from[0] + (to[0] - from[0]) * segmentProgress,
+          from[1] + (to[1] - from[1]) * segmentProgress
+        ];
+        marker.setLatLng(position);
+        updateBusDirection(marker, from, to);
+        if (target < total) routeAnimationFrame = requestAnimationFrame(step);
+        else done();
+      };
+      routeAnimationFrame = requestAnimationFrame(step);
+    };
+
+    const visitHalt = (haltIndex) => {
+      if (animationId !== routeAnimationId) return;
+      const halt = halts[haltIndex];
+      showHalt(halt);
+      const isLast = haltIndex === halts.length - 1;
+      routeAnimationTimer = setTimeout(() => {
+        if (animationId !== routeAnimationId) return;
+        if (isLast) {
+          marker.setLatLng(path[0]);
+          visitHalt(0);
+          return;
+        }
+        const next = halts[haltIndex + 1];
+        const routeShare = Math.max((next.index - halt.index) / (path.length - 1), 0.025);
+        animateLeg(halt.index, next.index, Math.max(650, Math.min(4200, routeShare * 30000)), () => visitHalt(haltIndex + 1));
+      }, isLast ? 2200 : 1400);
+    };
+
+    visitHalt(0);
   }
 
   function normalize(value) {
@@ -337,6 +522,7 @@
     planButton.setAttribute("aria-pressed", String(plannerMode));
     exploreButton.setAttribute("aria-pressed", String(!plannerMode));
     if (plannerMode) {
+      stopRouteAnimation();
       if (pendingPoint) setPendingPoint(pendingPoint);
       if (journeyOptions.length) highlightJourney(journeyOptions[0]);
     } else {
@@ -360,10 +546,12 @@
     const source = route.relationId
       ? `<p><a href="https://www.openstreetmap.org/relation/${route.relationId}" target="_blank" rel="noreferrer">${t("app.viewOsm")}</a></p>`
       : `<p class="missing">${t("app.noGeometry")}</p>`;
-    detail.innerHTML = `<p class="route-number">${t("app.route", { ref: route.ref })}</p><p>${route.start} → ${route.end}</p>${via}${source}`;
+    detail.innerHTML = `<p class="route-number">${t("app.route", { ref: route.ref })}</p><p>${route.start} → ${route.end}</p>${via}${source}<div class="route-animation-info"><span class="route-animation-dot" aria-hidden="true"></span><span class="route-animation-status" aria-live="polite">${t("app.preparingAnimation")}</span></div>`;
+    startRouteAnimation(route);
   }
 
   function showNetworkOverview() {
+    stopRouteAnimation();
     detail.innerHTML = `<p class="route-number">${t("home.networkOverview")}</p><p>${t("home.chooseRoute")}</p>`;
   }
 
@@ -395,6 +583,15 @@
     resetNetwork();
     map.fitBounds(networkBounds, { padding: [24, 24] });
     showNetworkOverview();
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopRouteAnimation();
+    } else if (!plannerMode && select.value !== "all") {
+      const route = routes.find((item) => item.ref === select.value);
+      if (route) startRouteAnimation(route);
+    }
   });
 
   window.addEventListener("amabus:languagechange", () => {
