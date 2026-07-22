@@ -59,6 +59,7 @@
   const stationList = document.getElementById("station-list");
   const startStationInput = document.getElementById("start-station");
   const endStationInput = document.getElementById("end-station");
+  const findBusButton = document.getElementById("find-bus");
 
   let plannerMode = true;
   let pendingPoint = "start";
@@ -300,15 +301,6 @@
     return nameMatches.length === 1 ? nameMatches[0] : null;
   }
 
-  function autoMatchStation(value) {
-    const query = normalize(value);
-    if (!query) return null;
-    const exact = exactStation(value);
-    if (exact) return exact;
-    const matches = stations.filter((station) => normalize(station.name).includes(query) || normalize(station.display).includes(query));
-    return matches.length === 1 ? matches[0] : null;
-  }
-
   function nearestPoint(route, point) {
     let best = { distance: Infinity, point: null };
     route.plannerPoints.forEach((candidate) => {
@@ -468,12 +460,12 @@
       startButton.setAttribute("aria-pressed", "false");
       endButton.setAttribute("aria-pressed", "false");
       map.getContainer().classList.remove("planning-start", "planning-end");
-      tripSummary.textContent = t("app.comparing");
-      planTrip();
+      tripSummary.textContent = t("app.readyToFind");
     } else if (!startPoint) {
       tripSummary.innerHTML = t("app.chooseStartHtml");
       startStationInput.focus();
     }
+    updateStationEntryState(false);
   }
 
   function chooseStation(type, station) {
@@ -483,15 +475,75 @@
     if (!(startPoint && endPoint)) map.setView([station.lat, station.lon], Math.max(map.getZoom(), 12));
   }
 
-  function handleStationInput(type, input, allowAutoMatch) {
-    const station = allowAutoMatch ? autoMatchStation(input.value) : exactStation(input.value);
-    if (station) {
-      chooseStation(type, station);
+  function invalidatePoint(type) {
+    const isStart = type === "start";
+    const hasPoint = isStart ? startPoint : endPoint;
+    if (!hasPoint && !journeyOptions.length) return;
+
+    const removedMarker = isStart ? startMarker : endMarker;
+    if (removedMarker) {
+      removedMarker.closeTooltip();
+      removedMarker.unbindTooltip();
+    }
+    tripGroup.clearLayers();
+    if (isStart) {
+      startPoint = null;
+      startStationName = null;
+      startMarker = null;
+      if (endMarker) endMarker.addTo(tripGroup);
+    } else {
+      endPoint = null;
+      endStationName = null;
+      endMarker = null;
+      if (startMarker) startMarker.addTo(tripGroup);
+    }
+    journeyOptions = [];
+    plannerResults.replaceChildren();
+    resetNetwork();
+  }
+
+  function updateStationEntryState(updateMessage = true) {
+    const pickupReady = Boolean(startPoint || exactStation(startStationInput.value));
+    const dropReady = Boolean(endPoint || exactStation(endStationInput.value));
+    findBusButton.disabled = !(pickupReady && dropReady);
+    if (!updateMessage) return;
+
+    if (pickupReady && dropReady) {
+      tripSummary.textContent = t("app.readyToFind");
+    } else if (pickupReady) {
+      tripSummary.innerHTML = t("app.chooseDestination");
+    } else if (dropReady) {
+      tripSummary.innerHTML = t("app.chooseStartHtml");
+    } else if (startStationInput.value.trim() || endStationInput.value.trim()) {
+      tripSummary.textContent = t("app.keepTyping");
+    } else {
+      tripSummary.textContent = t("home.chooseStart");
+    }
+  }
+
+  function handleStationTyping(type) {
+    invalidatePoint(type);
+    updateStationEntryState();
+  }
+
+  function findBuses() {
+    const pickup = startPoint ? null : exactStation(startStationInput.value);
+    const drop = endPoint ? null : exactStation(endStationInput.value);
+    if (!startPoint && !pickup) {
+      tripSummary.textContent = t("app.selectPickup");
+      startStationInput.focus();
       return;
     }
-    if (allowAutoMatch && input.value.trim()) {
-      tripSummary.textContent = t("app.keepTyping");
+    if (!endPoint && !drop) {
+      tripSummary.textContent = t("app.selectDrop");
+      endStationInput.focus();
+      return;
     }
+
+    if (pickup) chooseStation("start", pickup);
+    if (drop) chooseStation("end", drop);
+    tripSummary.textContent = t("app.comparing");
+    planTrip();
   }
 
   function clearTrip() {
@@ -512,6 +564,7 @@
     endButton.setAttribute("aria-pressed", "false");
     map.getContainer().classList.remove("planning-start", "planning-end");
     tripSummary.textContent = t("home.chooseStart");
+    findBusButton.disabled = true;
     map.fitBounds(networkBounds, { padding: [24, 24] });
   }
 
@@ -560,10 +613,9 @@
   });
   startButton.addEventListener("click", () => setPendingPoint("start"));
   endButton.addEventListener("click", () => setPendingPoint("end"));
-  startStationInput.addEventListener("input", () => handleStationInput("start", startStationInput, true));
-  endStationInput.addEventListener("input", () => handleStationInput("end", endStationInput, true));
-  startStationInput.addEventListener("change", () => handleStationInput("start", startStationInput, true));
-  endStationInput.addEventListener("change", () => handleStationInput("end", endStationInput, true));
+  startStationInput.addEventListener("input", () => handleStationTyping("start"));
+  endStationInput.addEventListener("input", () => handleStationTyping("end"));
+  findBusButton.addEventListener("click", findBuses);
   document.getElementById("clear-trip").addEventListener("click", clearTrip);
   planButton.addEventListener("click", () => setMode("plan"));
   exploreButton.addEventListener("click", () => setMode("explore"));
@@ -609,7 +661,7 @@
     } else if (!startPoint && endPoint) {
       tripSummary.innerHTML = t("app.chooseStartHtml");
     } else {
-      tripSummary.textContent = t("home.chooseStart");
+      updateStationEntryState();
     }
     if (!plannerMode) {
       if (selectedRoute !== "all") selectRoute(selectedRoute);

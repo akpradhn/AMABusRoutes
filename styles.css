@@ -339,6 +339,8 @@ input, select, button {
 input, select { padding: 0 .75rem; }
 button { cursor: pointer; background: var(--ink); color: #fff; font-weight: 700; }
 button:hover { background: #183c62; }
+button:disabled { cursor: not-allowed; opacity: .48; }
+button:disabled:hover { background: var(--ink); }
 input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px solid rgba(37, 119, 185, .28); outline-offset: 2px; }
 
 .panel-prompt { margin: 0 0 .7rem; color: var(--muted); font-size: .82rem; }
@@ -346,6 +348,25 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px s
 .station-fields { display: grid; gap: .55rem; }
 .station-fields label { margin: 0; color: var(--muted); font-size: .7rem; letter-spacing: .04em; }
 .station-fields input { display: block; margin-top: .28rem; }
+.station-field-label { display: flex; align-items: center; gap: .4rem; }
+.station-label-icon {
+  display: inline-block;
+  width: .72rem;
+  height: .72rem;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(16, 37, 61, .22);
+}
+.station-label-icon.pickup { background: #1f8a5b; }
+.station-label-icon.drop { background: #e3522c; }
+
+.find-bus-button {
+  margin-top: .7rem;
+  border-color: #087344;
+  background: #087f45;
+}
+.find-bus-button:hover { background: #066b3a; }
+.find-bus-button:disabled:hover { background: #087f45; }
 
 .point-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; margin-top: .55rem; }
 .point-actions button { min-height: 2.2rem; padding: .35rem; background: #fff; color: var(--ink); font-size: .7rem; }

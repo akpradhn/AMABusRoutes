@@ -77,16 +77,17 @@
         </div>
 
         <section id="planner-view" aria-label="Trip planner">
-          <p class="panel-prompt" data-i18n="home.prompt">Search stations; suggestions auto-match as you type.</p>
+          <p class="panel-prompt" data-i18n="home.prompt">Type a station name, then select a match from the dropdown.</p>
           <div class="station-fields">
-            <label for="start-station"><span data-i18n="home.from">From station</span>
+            <label for="start-station"><span class="station-field-label"><i class="station-label-icon pickup" aria-hidden="true"></i><span data-i18n="home.from">Pickup station</span></span>
               <input id="start-station" type="search" list="station-list" autocomplete="off" placeholder="Type a station name" data-i18n-placeholder="home.stationPlaceholder">
             </label>
-            <label for="end-station"><span data-i18n="home.to">To station</span>
+            <label for="end-station"><span class="station-field-label"><i class="station-label-icon drop" aria-hidden="true"></i><span data-i18n="home.to">Drop station</span></span>
               <input id="end-station" type="search" list="station-list" autocomplete="off" placeholder="Type a station name" data-i18n-placeholder="home.stationPlaceholder">
             </label>
             <datalist id="station-list"></datalist>
           </div>
+          <button type="button" id="find-bus" class="find-bus-button" disabled data-i18n="home.findBus">Find bus</button>
           <div class="point-actions">
             <button type="button" id="set-start" aria-pressed="false" data-i18n="home.pickStart">Pick start on map</button>
             <button type="button" id="set-end" aria-pressed="false" data-i18n="home.pickDestination">Pick destination on map</button>
