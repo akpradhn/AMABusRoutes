@@ -465,6 +465,24 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px s
 }
 .bus-stop-label::before { border-top-color: #087f45 !important; }
 
+.route-stop-marker { filter: drop-shadow(0 1px 2px rgba(16, 37, 61, .28)); }
+.route-stop-name {
+  border: 1px solid rgba(16, 37, 61, .16) !important;
+  border-radius: 5px !important;
+  background: rgba(255, 255, 255, .94) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 2px 7px rgba(16, 37, 61, .18) !important;
+  font-size: .64rem;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.route-stop-terminal-name {
+  border-color: rgba(8, 127, 69, .36) !important;
+  color: #075d36 !important;
+}
+.route-stop-name::before { display: none; }
+
 @keyframes route-animation-pulse {
   50% { opacity: .48; transform: scale(.82); }
 }

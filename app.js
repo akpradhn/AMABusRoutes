@@ -23,6 +23,7 @@
 
   const networkGroup = L.featureGroup().addTo(map);
   const tripGroup = L.featureGroup().addTo(map);
+  const routeStopsGroup = L.layerGroup().addTo(map);
   const animationGroup = L.layerGroup().addTo(map);
   const routeLayers = new Map();
   const defaultStyle = { color: "#2577b9", weight: 2.4, opacity: 0.38, lineCap: "round", lineJoin: "round" };
@@ -123,6 +124,7 @@
     routeAnimationFrame = null;
     routeAnimationTimer = null;
     animationGroup.clearLayers();
+    routeStopsGroup.clearLayers();
   }
 
   function terminalStation(name) {
@@ -203,6 +205,33 @@
     });
   }
 
+  function showRouteHalts(path, halts) {
+    routeStopsGroup.clearLayers();
+    const verticalRows = [0, -23, 23, -46, 46, -69, 69];
+    halts.forEach((halt, index) => {
+      const isTerminal = halt.source === "terminal" || index === 0 || index === halts.length - 1;
+      const nearbyIndex = halts.slice(0, index).filter((other) => haversine(path[other.index], path[halt.index]) < 1).length;
+      const direction = nearbyIndex % 2 === 0 ? "right" : "left";
+      const verticalOffset = verticalRows[Math.floor(nearbyIndex / 2) % verticalRows.length];
+      const marker = L.circleMarker(path[halt.index], {
+        radius: isTerminal ? 6 : 4.5,
+        color: "#fff",
+        weight: 2,
+        fillColor: isTerminal ? "#087f45" : "#2577b9",
+        fillOpacity: 1,
+        className: isTerminal ? "route-stop-marker route-stop-terminal" : "route-stop-marker"
+      });
+      marker.bindTooltip(halt.name, {
+        permanent: true,
+        direction,
+        offset: [direction === "right" ? 7 : -7, verticalOffset],
+        className: isTerminal ? "route-stop-name route-stop-terminal-name" : "route-stop-name",
+        opacity: 0.94
+      });
+      marker.addTo(routeStopsGroup);
+    });
+  }
+
   function updateBusDirection(marker, from, to) {
     const fromPoint = map.latLngToLayerPoint(from);
     const toPoint = map.latLngToLayerPoint(to);
@@ -216,6 +245,7 @@
     const path = animationPath(route);
     if (path.length < 2) return;
     const halts = routeHalts(route, path);
+    showRouteHalts(path, halts);
     const animationId = routeAnimationId;
     const marker = L.marker(path[0], { icon: busIcon, keyboard: false, zIndexOffset: 1000 }).addTo(animationGroup);
     marker.bindTooltip("", { direction: "top", className: "bus-stop-label", opacity: 1 });
